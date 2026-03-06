@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <title>מומחים ביציקות בטון ושיפוצים מקצועיים — עבודות בטון ועוד</title>
+    <meta name="description" content="עבודות בטון איכוtiות לבית פרטי ומסחרי. קבלנים מנוסים ביציקת רצפות, קירות תומכים ועבודות שיפוצים. התקשרו עכשיו לייעוץ חינם!">
+    <meta name="keywords" content="עבודות בטון, עבודות בטון לבית פרטי, קבלן עבודות בטון מומלץ, יציקת בטון, שיפוצים מקצועיים">
+    
+    <!-- Zappy Analytics -->
+<script>
+(function() {
+  'use strict';
+  
+  // Configuration
+  var config = {
+    websiteId: '66d0c163-97e1-45bd-826e-589c00a6d3a0',
+    apiUrl: 'https://api.zappy5.com/api/analytics/track',
+    sessionDuration: 30 * 60 * 1000, // 30 minutes
+    visitorDuration: 30 * 24 * 60 * 60 * 1000, // 30 days
+    trackPageViews: true,
+    trackClicks: true,
+    trackFormSubmissions: true
+  };
+  
+  // Generate or retrieve persistent visitor ID (30 days)
+  function getVisitorId() {
+    var visitorKey = 'zappy_visitor_' + config.websiteId;
+    var visitor = null;
+    
+    try {
+      visitor = localStorage.getItem(visitorKey);
+      if (visitor) {
+        var visitorData = JSON.parse(visitor);
+        var now = Date.now();
+        
+        // Check if visitor ID is still valid (30 days)
+        if (now - visitorData.created < config.visitorDuration) {
+          // Update last seen timestamp
+          visitorData.lastSeen = now;
+          localStorage.setItem(visitorKey, JSON.stringify(visitorData));
+          return visitorData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: LocalStorage not available');
+    }
+    
+    // Generate new visitor ID
+    var newVisitorId = 'zv_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      localStorage.setItem(visitorKey, JSON.stringify({
+        id: newVisitorId,
+        created: Date.now(),
+        lastSeen: Date.now()
+      }));
+    } catch (e) {
+      // Continue without local storage
+    }
+    
+    return newVisitorId;
+  }
+  
+  // Generate or retrieve session ID (30 minutes)
+  function getSessionId() {
+    var sessionKey = 'zappy_session_' + config.websiteId;
+    var session = null;
+    
+    try {
+      session = sessionStorage.getItem(sessionKey);
+      if (session) {
+        var sessionData = JSON.parse(session);
+        var now = Date.now();
+        
+        // Check if session is still valid
+        if (now - sessionData.timestamp < config.sessionDuration) {
+          // Update timestamp
+          sessionData.timestamp = now;
+          sessionStorage.setItem(sessionKey, JSON.stringify(sessionData));
+          return sessionData.id;
+        }
+      }
+    } catch (e) {
+      console.warn('Zappy Analytics: SessionStorage not available');
+    }
+    
+    // Generate new session ID
+    var newSessionId = 'zs_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    
+    try {
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        id: newSessionId,
+        timestamp: Date.now()
+      }));
+    } catch (e) {
+      // Continue without session storage
+    }
+    
+    return newSessionId;
+  }
+  
+  var visitorId = getVisitorId();
+  var sessionId = getSessionId();
+  
+  // Track an event
+  function trackEvent(eventType, data) {
+    data = data || {};
+    
+    var eventData = {
+      website_id: config.websiteId,
+      event_type: eventType,
+      page_path: window.location.pathname,
+      referrer: document.referrer || 'direct',
+      visitor_id: visitorId,
+      session_id: sessionId,
+      metadata: data
+    };
+    
+    // Use sendBeacon if available (better for page unload events)
+    if (navigator.sendBeacon) {
+      var blob = new Blob([JSON.stringify(eventData)], { type: 'application/json' });
+      navigator.sendBeacon(config.apiUrl, blob);
+    } else {
+      // Fallback to fetch
+      fetch(config.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(eventData),
+        keepalive: true
+      }).catch(function(error) {
+        console.warn('Zappy Analytics: Failed to track event', error);
+      });
+    }
+  }
+  
+  // Track page view
+  if (config.trackPageViews) {
+    trackEvent('pageview', {
+      title: document.title,
+      url: window.location.href
+    });
+  }
+  
+  // Track clicks on important elements
+  if (config.trackClicks) {
+    document.addEventListener('click', function(e) {
+      var target = e.target;
+      
+      // Track button clicks (counted as actions)
+      if (target.tagName === 'BUTTON' || target.closest('button')) {
+        var button = target.tagName === 'BUTTON' ? target : target.closest('button');
+        trackEvent('click', {
+          element: 'button',
+          text: button.textContent.trim().substring(0, 100),
+          id: button.id || null,
+          class: button.className || null
+        });
+      }
+      
+      // Track link clicks (navigation - not counted as actions)
+      else if (target.tagName === 'A' || target.closest('a')) {
+        var link = target.tagName === 'A' ? target : target.closest('a');
+        trackEvent('navigation', {
+          element: 'link',
+          text: link.textContent.trim().substring(0, 100),
+          href: link.href,
+          external: link.hostname !== window.location.hostname
+        });
+      }
+    }, true);
+  }
+  
+  // Track form submissions
+  if (config.trackFormSubmissions) {
+    document.addEventListener('submit', function(e) {
+      var form = e.target;
+      
+      trackEvent('form_submit', {
+        form_id: form.id || null,
+        form_name: form.name || null,
+        form_action: form.action || null,
+        form_method: form.method || 'GET'
+      });
+    }, true);
+  }
+  
+  // Track time on page (send on page unload)
+  var pageLoadTime = Date.now();
+  
+  window.addEventListener('beforeunload', function() {
+    var timeOnPage = Math.floor((Date.now() - pageLoadTime) / 1000); // in seconds
+    
+    trackEvent('page_unload', {
+      time_on_page: timeOnPage,
+      page_path: window.location.pathname
+    });
+  });
+  
+  // Expose tracking function globally for custom events
+  window.zappyAnalytics = {
+    track: trackEvent,
+    getVisitorId: function() { return visitorId; },
+    getSessionId: function() { return sessionId; }
+  };
+  
+})();
+</script>
+<!-- End Zappy Analytics -->
+    <meta property="og:title" content="מומחים ביציקות בטון ושיפוצים מקצועיים — עבודות בטון ועוד">
+  <meta property="og:description" content="עבודות בטון איכוtiות לבית פרטי ומסחרי. קבלנים מנוסים ביציקת רצפות, קירות תומכים ועבודות שיפוצים. התקשרו עכשיו לייעוץ חינם!">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="he_IL">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="מומחים ביציקות בטון ושיפוצים מקצועיים — עבודות בטון ועוד">
+  <meta name="twitter:description" content="עבודות בטון איכוtiות לבית פרטי ומסחרי. קבלנים מנוסים ביציקת רצפות, קירות תומכים ועבודות שיפוצים. התקשרו עכשיו לייעוץ חינם!">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/assets/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512x512.png">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+    <!-- Cookie Consent -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/npm/vanilla-cookieconsent@3/dist/cookieconsent.umd.js"></script>
+    <!-- Mickidum Accessibility Toolbar -->
+    <script src="https://cdn.jsdelivr.net/gh/mickidum/acc_toolbar/acctoolbar/acctoolbar.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+
+    <style id="zappy-dropdown-submenu-styles">
+      /* ========== DESKTOP DROPDOWN SUBMENU STYLES ========== */
+      /* Base styles for dropdown submenus - parent must be positioned */
+      .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { position: relative; }
+      /* Submenu base - hidden by default */
+      .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { display: block !important; position: absolute !important; top: 100%; left: 0; min-width: 220px; background: white; border-radius: 8px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); padding: 8px 0; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s ease; z-index: 1000; list-style: none; pointer-events: none; }
+      /* CRITICAL: Desktop hover styles to show dropdown */
+      .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Submenu item styling */
+      .sub-menu li { list-style: none; margin: 0; padding: 0; }
+      .sub-menu a { display: block !important; padding: 10px 16px !important; color: #333 !important; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color 0.2s; }
+      .sub-menu a:hover { background-color: #f5f5f5; }
+      /* RTL (Hebrew/Arabic) dropdown positioning */
+      [dir="rtl"] .nav-menu .sub-menu, [dir="rtl"] nav .sub-menu, [dir="rtl"] .navbar .sub-menu, html[lang="he"] .nav-menu .sub-menu, html[lang="he"] nav .sub-menu, html[lang="he"] .navbar .sub-menu, html[lang="ar"] .nav-menu .sub-menu, html[lang="ar"] nav .sub-menu, html[lang="ar"] .navbar .sub-menu { left: auto !important; right: 0 !important; }
+      /* Hide empty dropdown menus */
+      .sub-menu:empty, .sub-menu:not(:has(li:not(.zappy-hidden-menu-item))), .sub-menu:not(:has(li)) { display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+      /* Desktop: show submenu on Menu Group hover */
+      li:has(.menu-group-title):hover > .sub-menu { opacity: 1 !important; visibility: visible !important; transform: translateY(0) !important; pointer-events: auto !important; }
+      /* Menu Group title styling */
+      .nav-menu > li > .menu-group-title, #navMenu > li > .menu-group-title { display: inline-block; padding: 0.5rem 1rem; cursor: default; user-select: none; }
+      
+      /* ========== MOBILE SUBMENU STYLES ========== */
+      @media (max-width: 768px) {
+        .nav-menu .sub-menu, nav .sub-menu, .navbar .sub-menu, #navMenu .sub-menu { position: static !important; transform: none !important; box-shadow: none !important; background: transparent !important; max-height: 0; overflow: hidden; opacity: 0; visibility: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; padding: 0 !important; border-radius: 0 !important; }
+        .sub-menu.mobile-expanded { max-height: 500px !important; opacity: 1 !important; visibility: visible !important; padding: 8px 0 8px 16px !important; }
+        [dir="rtl"] .sub-menu.mobile-expanded, html[lang="he"] .sub-menu.mobile-expanded { padding: 8px 16px 8px 0 !important; }
+        /* Disable hover behavior on mobile */
+        .nav-menu li:hover > .sub-menu, nav li:hover > .sub-menu, .navbar li:hover > .sub-menu, #navMenu li:hover > .sub-menu { opacity: 0; visibility: hidden; pointer-events: none; }
+        .nav-menu li > .sub-menu.mobile-expanded, nav li > .sub-menu.mobile-expanded, .navbar li > .sub-menu.mobile-expanded, #navMenu li > .sub-menu.mobile-expanded { opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+        .nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu) { display: flex !important; flex-wrap: wrap !important; align-items: center !important; position: relative !important; min-height: 44px !important; }
+        .nav-menu li:has(.sub-menu) > a, nav li:has(.sub-menu) > a, .navbar li:has(.sub-menu) > a, #navMenu li:has(.sub-menu) > a { flex: 1 !important; min-width: 0 !important; }
+        .nav-menu li:has(.sub-menu) > .menu-group-title, nav li:has(.sub-menu) > .menu-group-title, .navbar li:has(.sub-menu) > .menu-group-title, #navMenu li:has(.sub-menu) > .menu-group-title { flex: 1 !important; min-width: 0 !important; padding: 0 !important; line-height: inherit !important; }
+        .nav-menu li:has(.sub-menu) > .sub-menu, nav li:has(.sub-menu) > .sub-menu, .navbar li:has(.sub-menu) > .sub-menu, #navMenu li:has(.sub-menu) > .sub-menu { flex-basis: 100% !important; width: 100% !important; }
+        .nav-menu li:has(.sub-menu) > a [class*="chevron"], .nav-menu li:has(.sub-menu) > a [class*="arrow"], .nav-menu li:has(.sub-menu) > a .fa-chevron-down, .nav-menu li:has(.sub-menu) > a .fa-angle-down, nav li:has(.sub-menu) > a [class*="chevron"], nav li:has(.sub-menu) > a [class*="arrow"], #navMenu li:has(.sub-menu) > a [class*="chevron"], #navMenu li:has(.sub-menu) > a [class*="arrow"] { display: none !important; visibility: hidden !important; }
+        .mobile-submenu-toggle { display: flex !important; align-items: center !important; justify-content: center !important; width: 44px !important; height: auto !important; background: transparent !important; border: none !important; cursor: pointer !important; color: var(--text-light) !important; position: static !important; flex-shrink: 0 !important; align-self: stretch !important; z-index: 2 !important; padding: 0 !important; margin: 0 !important; }
+        .mobile-submenu-toggle::after { content: '' !important; width: 0 !important; height: 0 !important; border-left: 6px solid transparent !important; border-right: 6px solid transparent !important; border-top: 7px solid currentColor !important; transition: transform 0.3s ease !important; }
+        .mobile-submenu-toggle.expanded::after { transform: rotate(180deg) !important; }
+        .sub-menu a { padding: 10px 0 !important; display: block !important; color: var(--text-light) !important; }
+        .navbar .sub-menu li a, nav.navbar .sub-menu li a, .zappy-products-dropdown .sub-menu a { color: var(--text-light) !important; }
+      }
+      @media (min-width: 769px) { .mobile-submenu-toggle { display: none !important; } }
+    </style>
+
+    <style id="zappy-widget-visibility">
+      #mic-access-tool-general-button, .mic-access-tool-general-button,
+      #mic-init-access-tool .mic-access-tool-general-button, #mic-init-access-tool #mic-access-tool-general-button,
+      ._access-icon, #mic-access-tool-box, .mic-access-tool-box,
+      #mic-init-access-tool #mic-access-tool-box, div[id*="mic-access-tool-box"], ._access-menu {
+        display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
+      }
+    </style>
+</head>
+<body>
+
+  <nav class="navbar" dir="rtl">
+  <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+    <svg class="hamburger-icon" width="24" height="24" viewbox="0 0 24 24" fill="none">
+      <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+    <svg class="close-icon" width="24" height="24" viewbox="0 0 24 24" fill="none" style="display:none;">
+      <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+    </svg>
+  </button>
+  
+  <button class="phone-header-btn" aria-label="Call">
+    <svg width="20" height="20" viewbox="0 0 24 24" fill="currentColor">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+    </svg>
+  </button>
+  
+  <div class="nav-container">
+    <div class="nav-brand">
+      <a href="/" class="logo-link">
+        <img class="logo" data-placeholder="logo" data-context="business logo" width="160" height="40" src="/assets/business-logo.webp" alt="עבודות בטון ועוד">
+      </a>
+    </div>
+    
+    <ul class="nav-menu" id="navMenu"><li><a href="/services">שירותים</a></li><li><a href="/projects">פרויקטים</a></li></ul>
+    
+    <div class="nav-cta-container">
+      <a href="/contact" class="nav-cta-btn">צור קשר</a>
+    </div>
+  </div>
+</nav>
+  
+  <main>
+    <section class="index-hero-section" data-layout-spec="בית-hero" data-hero-type="fullscreen-scrim">
+  <!-- Background Image -->
+  <img data-hero-bg="true" data-placeholder="index-hero-bg" data-context="Wide-angle shot of a professional concrete pour in progress on a residential construction site in Israel. Show workers in safety gear finishing a fresh concrete slab with hand trowels and screeds. The scene should capture the texture of wet concrete being smoothed, with reinforcement bars visible at the edges. Natural daylight, realistic work environment, dusty boots, professional craftsmanship. Background shows partial house framing and clear blue sky. Photorealistic, sharp focus on the concrete finishing process." data-preserve-bg="0" class="index-hero-bg" width="1920" height="1080" src="/assets/site-index-hero-bg.webp" alt="עבודות גמר בטון באתר בנייה מקצועי">
+  
+  <!-- Scrim Overlay -->
+  <div class="index-hero-scrim" aria-hidden="true"></div>
+  
+  <!-- Grain Texture Overlay -->
+  <div class="index-hero-grain" aria-hidden="true"></div>
+  
+  <!-- Text Overlay Group -->
+  <div class="index-hero-overlay">
+    <div class="index-hero-content">
+      <h1>עבודות בטון מדויקות—מיסודות ועד תיקונים מבניים</h1>
+      <h3>תבניות מדויקות, גימורים נקיים ואספקה מוכנה לאתר לפרויקטים מגורים ומסחריים</h3>
+      
+      <div class="index-hero-cta-row">
+        <a href="/contact" class="btn-primary">בקשת הצעת מחיר</a>
+        <a href="/projects" class="btn-secondary">צפייה בפרויקטים</a>
+      </div>
+      
+      <p class="index-hero-microcopy">ביקור מהיר באתר, הגדרת היקף ברורה ותוצאות עמידות—מותאם לתנאים המקומיים</p>
+    </div>
+  </div>
+  
+  <!-- Bottom Divider: Diagonal Concrete Cut Edge -->
+  <div class="index-hero-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 100" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Diagonal cut with subtle grain overlay -->
+      <defs>
+        <filter id="concrete-grain">
+          <feTurbulence type="fractalNoise" basefrequency="0.9" numoctaves="2" stitchtiles="stitch"></feTurbulence>
+          <feColorMatrix type="saturate" values="0"></feColorMatrix>
+          <feComponentTransfer>
+            <feFuncA type="discrete" tablevalues="0 0.04"></feFuncA>
+          </feComponentTransfer>
+        </filter>
+      </defs>
+      <path d="M0,100 L0,20 L1200,60 L1200,100 Z" fill="#EEF0F1"></path>
+      <rect x="0" y="0" width="1200" height="100" fill="url(#concrete-grain)" opacity="0.15"></rect>
+    </svg>
+  </div>
+</section>
+
+<section class="index-services-section" data-layout-spec="בית-services">
+  <div class="index-services-container">
+    <div class="index-services-grid">
+      <!-- Content Column (START/RIGHT) -->
+      <div class="index-services-content">
+        <h2 class="index-services-title">ארגז כלים ממוקד לעבודות בטון</h2>
+        <p class="index-services-intro">מתכנון התבניות ועד הגימור הסופי, כל שלב מתוכנן לחוזק, ניקוז נכון ומראה סופי נקי.</p>
+        
+        <div class="index-services-highlights">
+          <div class="index-services-highlight-item">
+            <svg class="index-services-highlight-icon" data-element-type="icon" data-icon-type="svg" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="18" height="18" stroke="currentColor" stroke-width="1.5" rx="1"></rect>
+              <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="1.5"></line>
+              <line x1="9" y1="3" x2="9" y2="21" stroke="currentColor" stroke-width="1.5"></line>
+              <line x1="15" y1="3" x2="15" y2="21" stroke="currentColor" stroke-width="1.5"></line>
+              <line x1="3" y1="15" x2="21" y2="15" stroke="currentColor" stroke-width="1.5"></line>
+            </svg>
+            <h3 class="index-services-highlight-title">תבניות ופילוס</h3>
+            <p class="index-services-highlight-text">הקמת תבניות מדויקות ופילוס רמות לבסיס יציב ומפולס לכל סוג יציקה.</p>
+          </div>
+          
+          <div class="index-services-highlight-item">
+            <svg class="index-services-highlight-icon" data-element-type="icon" data-icon-type="svg" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"></circle>
+              <path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.5"></path>
+              <circle cx="12" cy="12" r="2" fill="currentColor"></circle>
+            </svg>
+            <h3 class="index-services-highlight-title">זיון ועיגון</h3>
+            <p class="index-services-highlight-text">הכנסת זיון פלדה ועיגונים במיקומים אסטרטגיים לחיזוק מבני ארוך טווח.</p>
+          </div>
+          
+          <div class="index-services-highlight-item">
+            <svg class="index-services-highlight-icon" data-element-type="icon" data-icon-type="svg" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+              <circle cx="7" cy="12" r="1.5" fill="currentColor"></circle>
+              <circle cx="17" cy="12" r="1.5" fill="currentColor"></circle>
+            </svg>
+            <h3 class="index-services-highlight-title">גימורי משטח</h3>
+            <p class="index-services-highlight-text">החלקה, טקסטורה או ליטוש – בחירת הגימור המתאים למראה ולתפקוד.</p>
+          </div>
+          
+          <div class="index-services-highlight-item">
+            <svg class="index-services-highlight-icon" data-element-type="icon" data-icon-type="svg" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 4l16 16M20 4L4 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+              <rect x="6" y="6" width="12" height="12" stroke="currentColor" stroke-width="1.5" rx="1"></rect>
+            </svg>
+            <h3 class="index-services-highlight-title">תיקונים וטלאים</h3>
+            <p class="index-services-highlight-text">טיפול בסדקים, שיקום פינות פגומות והחזרת המבנה למצב אופטימלי.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Infographic Column (END/LEFT) -->
+      <div class="index-services-infographic">
+        <svg class="index-services-map" viewbox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Central Node -->
+          <g class="index-services-node index-services-node-center">
+            <circle cx="200" cy="200" r="45" fill="var(--bg-light)" stroke="var(--border-light)" stroke-width="2"></circle>
+            <text x="200" y="195" text-anchor="middle" class="index-services-node-label-main">עבודות</text>
+            <text x="200" y="210" text-anchor="middle" class="index-services-node-label-main">בטון</text>
+          </g>
+          
+          <!-- Top Node: Slabs -->
+          <line x1="200" y1="155" x2="200" y2="80" stroke="var(--border-light)" stroke-width="1.5" stroke-dasharray="4 3"></line>
+          <g class="index-services-node">
+            <rect x="150" y="30" width="100" height="50" rx="3" fill="var(--bg-light)" stroke="var(--border-light)" stroke-width="1.5"></rect>
+            <svg x="175" y="40" width="20" height="20" viewbox="0 0 24 24" fill="none">
+              <rect x="3" y="10" width="18" height="8" stroke="currentColor" stroke-width="1.5"></rect>
+              <line x1="3" y1="14" x2="21" y2="14" stroke="currentColor" stroke-width="1.5"></line>
+            </svg>
+            <text x="200" y="68" text-anchor="middle" class="index-services-node-label">רצפות</text>
+          </g>
+          <text x="200" y="95" text-anchor="middle" class="index-services-node-desc">כניסות, מרפסות</text>
+          
+          <!-- Top-Right Node: Walkways -->
+          <line x1="235" y1="165" x2="305" y2="95" stroke="var(--border-light)" stroke-width="1.5" stroke-dasharray="4 3"></line>
+          <g class="index-services-node">
+            <rect x="260" y="45" width="100" height="50" rx="3" fill="var(--bg-light)" stroke="var(--border-light)" stroke-width="1.5"></rect>
+            <svg x="285" y="55" width="20" height="20" viewbox="0 0 24 24" fill="none">
+              <path d="M4 12h16M6 8h12M8 16h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+            </svg>
+            <text x="310" y="83" text-anchor="middle" class="index-services-node-label">שבילים</text>
+          </g>
+          <text x="310" y="110" text-anchor="middle" class="index-services-node-desc">שיפועים בטוחים</text>
+          
+          <!-- Right Node: Parking Pads -->
+          <line x1="245" y1="200" x2="320" y2="200" stroke="var(--border-light)" stroke-width="1.5" stroke-dasharray="4 3"></line>
+          <g class="index-services-node">
+            <rect x="275" y="175" width="100" height="50" rx="3" fill="var(--bg-light)" stroke="var(--border-light)" stroke-width="1.5"></rect>
+            <svg x="300" y="185" width="20" height="20" viewbox="0 0 24 24" fill="none">
+              <rect x="4" y="8" width="16" height="10" stroke="currentColor" stroke-width="1.5" rx="1"></rect>
+              <circle cx="8" cy="18" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+              <circle cx="16" cy="18" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+            </svg>
+            <text x="325" y="213" text-anchor="middle" class="index-services-node-label">חניות</text>
+          </g>
+          <text x="325" y="240" text-anchor="middle" class="index-services-node-desc">עובי נושא עומס</text>
+          
+          <!-- Bottom-Right Node: Concrete Walls -->
+          <line x1="235" y1="235" x2="305" y2="305" stroke="var(--border-light)" stroke-width="1.5" stroke-dasharray="4 3"></line>
+          <g class="index-services-node">
+            <rect x="260" y="285" width="100" height="50" rx="3" fill="var(--bg-light)" stroke="var(--border-light)" stroke-width="1.5"></rect>
+            <svg x="285" y="295" width="20" height="20" viewbox="0 0 24 24" fill="none">
+              <rect x="6" y="4" width="12" height="16" stroke="currentColor" stroke-width="1.5"></rect>
+              <line x1="9" y1="4" x2="9" y2="20" stroke="currentColor" stroke-width="1.5"></line>
+              <line x1="15" y1="4" x2="15" y2="20" stroke="currentColor" stroke-width="1.5"></line>
+            </svg>
+            <text x="310" y="323" text-anchor="middle" class="index-services-node-label">קירות בטון</text>
+          </g>
+          <text x="310" y="350" text-anchor="middle" class="index-services-node-desc">יציבות ויישור</text>
+          
+          <!-- Bottom-Left Node: Reinforcement -->
+          <line x1="165" y1="235" x2="95" y2="305" stroke="var(--border-light)" stroke-width="1.5" stroke-dasharray="4 3"></line>
+          <g class="index-services-node">
+            <rect x="40" y="285" width="100" height="50" rx="3" fill="var(--bg-light)" stroke="var(--border-light)" stroke-width="1.5"></rect>
+            <svg x="65" y="295" width="20" height="20" viewbox="0 0 24 24" fill="none">
+              <path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="1.5"></path>
+              <circle cx="12" cy="7" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+              <circle cx="12" cy="17" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+              <circle cx="7" cy="12" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+              <circle cx="17" cy="12" r="2" stroke="currentColor" stroke-width="1.5"></circle>
+            </svg>
+            <text x="90" y="323" text-anchor="middle" class="index-services-node-label">חיזוק</text>
+          </g>
+          <text x="90" y="350" text-anchor="middle" class="index-services-node-desc">ביטחון מבני</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bottom Divider: Gradient Fade -->
+  <div class="index-services-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 60" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="index-services-fade" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="var(--bg-light)" stop-opacity="1"></stop>
+          <stop offset="70%" stop-color="var(--bg-light)" stop-opacity="0.3"></stop>
+          <stop offset="100%" stop-color="var(--bg-light)" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="1200" height="60" fill="url(#index-services-fade)"></rect>
+      <line x1="0" y1="30" x2="1200" y2="30" stroke="var(--border-light)" stroke-width="1" opacity="0.4"></line>
+    </svg>
+  </div>
+</section>
+
+<section class="index-timeline-section" data-layout-spec="בית-timeline">
+  <div class="timeline-container">
+    <div class="timeline-header">
+      <h2>תהליך עבודה ברור</h2>
+      <p class="timeline-intro">רצף פעולות מובנה מקטין עיכובים ומונע עבודות תיקון יקרות.</p>
+    </div>
+
+    <div class="timeline-process">
+      <div class="timeline-step" data-step="1">
+        <div class="step-marker">
+          <div class="step-number">1</div>
+          <svg class="step-tick" data-no-icon-edit="true" aria-hidden="true" width="12" height="12" viewbox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <div class="step-content">
+          <h3>ביקור באתר ומדידות</h3>
+          <p>סיור מקיף למיפוי מצב קיים, מדידת שטחים והבנת דרישות הפרויקט.</p>
+        </div>
+      </div>
+
+      <div class="timeline-connector"></div>
+
+      <div class="timeline-step" data-step="2">
+        <div class="step-marker">
+          <div class="step-number">2</div>
+          <svg class="step-tick" data-no-icon-edit="true" aria-hidden="true" width="12" height="12" viewbox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <div class="step-content">
+          <h3>היקף, מפלסים ותכנון ניקוז</h3>
+          <p>הגדרת היקף העבודה, חישוב שיפועים ותכנון מערכת ניקוז יעילה.</p>
+        </div>
+      </div>
+
+      <div class="timeline-connector"></div>
+
+      <div class="timeline-step" data-step="3">
+        <div class="step-marker">
+          <div class="step-number">3</div>
+          <svg class="step-tick" data-no-icon-edit="true" aria-hidden="true" width="12" height="12" viewbox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <div class="step-content">
+          <h3>הכנה, בסיס וחיזוק</h3>
+          <p>הכנת קרקע, יציקת בסיס יציב והתקנת ברזלי חיזוק לעמידות לאורך זמן.</p>
+        </div>
+      </div>
+
+      <div class="timeline-connector"></div>
+
+      <div class="timeline-step" data-step="4">
+        <div class="step-marker">
+          <div class="step-number">4</div>
+          <svg class="step-tick" data-no-icon-edit="true" aria-hidden="true" width="12" height="12" viewbox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <div class="step-content">
+          <h3>יציקה, החלקה וגימור</h3>
+          <p>יציקת הבטון, החלקה מדויקת וביצוע גימור איכותי לפי דרישות הלקוח.</p>
+        </div>
+      </div>
+
+      <div class="timeline-connector"></div>
+
+      <div class="timeline-step" data-step="5">
+        <div class="step-marker">
+          <div class="step-number">5</div>
+          <svg class="step-tick" data-no-icon-edit="true" aria-hidden="true" width="12" height="12" viewbox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6L5 9L10 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+        <div class="step-content">
+          <h3>ריפוי, איטום וסיור סופי</h3>
+          <p>תהליך ריפוי מבוקר, איטום במידת הצורך וסיור מסכם לאישור העבודה.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-outcomes">
+      <h3 class="outcomes-title">מה תקבלו</h3>
+      <div class="outcomes-list">
+        <p class="outcome-item">קצוות מוגדרים ושיפועים אחידים.</p>
+        <p class="outcome-item">חיבורים נקיים ואסטרטגיה מבוקרת לסדקים.</p>
+        <p class="outcome-item">גימור מותאם לשימוש ולתנאי אקלים.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 100" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="contour-fade" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-opacity="0.3"></stop>
+          <stop offset="40%" stop-opacity="0.6"></stop>
+          <stop offset="70%" stop-opacity="0.9"></stop>
+          <stop offset="100%" stop-opacity="0.2"></stop>
+        </linearGradient>
+      </defs>
+      <path d="M0,100 L0,45 Q100,48 200,42 T400,45 Q500,42 600,48 T800,45 Q900,42 1000,48 T1200,42 L1200,100 Z" fill="#EEF0F1"></path>
+      <path d="M0,45 Q100,48 200,42 T400,45 Q500,42 600,48 T800,45 Q900,42 1000,48 T1200,42" stroke="url(#contour-fade)" stroke-width="1" fill="#EEF0F1"></path>
+      <path d="M0,55 Q120,58 240,52 T480,55 Q600,52 720,58 T960,55 Q1080,52 1200,58" stroke="url(#contour-fade)" stroke-width="0.8" fill="#EEF0F1" opacity="0.7"></path>
+      <path d="M0,65 Q140,68 280,62 T560,65 Q700,62 840,68 T1120,65 Q1180,62 1200,68" stroke="url(#contour-fade)" stroke-width="0.6" fill="#EEF0F1" opacity="0.5"></path>
+      <path d="M0,75 Q160,78 320,72 T640,75 Q800,72 960,78 T1200,75" stroke="url(#contour-fade)" stroke-width="0.4" fill="#EEF0F1" opacity="0.3"></path>
+    </svg>
+  </div>
+</section>
+
+<section class="index-portfolio-section" data-layout-spec="בית-portfolio">
+  <div class="index-portfolio-container">
+    <div class="index-portfolio-intro">
+      <div class="index-portfolio-intro-text">
+        <h2>עבודות נבחרות</h2>
+        <p>מבחר פרויקטים מייצגים המדגימים איכות גימור, משמעת בקצוות ועמידות לאורך זמן בשטח.</p>
+      </div>
+      <div class="index-portfolio-metrics">
+        <div class="index-portfolio-metric">
+          <p>זמן ביצוע טיפוסי: 2–7 ימים (תלוי בהיקף).</p>
+        </div>
+        <div class="index-portfolio-metric">
+          <p>עובי וחיזוק מתוכננים לפי עומס.</p>
+        </div>
+        <div class="index-portfolio-metric">
+          <p>גימורים: מטאטא, החלקה, אגרגט חשוף (לפי מפרט).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="index-portfolio-grid">
+      <div class="index-portfolio-item index-portfolio-item-hero">
+        <div class="index-portfolio-image-wrapper">
+          <span class="index-portfolio-tag">גימור מטאטא</span>
+          <img data-placeholder="index-portfolio-image-1" data-context="Professional concrete driveway with clean control joints, broom finish texture, showing high-quality workmanship and precise edges, Israeli construction site, natural daylight" width="800" height="900" src="/assets/site-index-portfolio-image-1.webp" alt="כביש גישה עם חיתוכי בקרה נקיים">
+        </div>
+        <p class="index-portfolio-caption">כביש גישה עם חיתוכי בקרה נקיים.</p>
+      </div>
+
+      <div class="index-portfolio-item index-portfolio-item-medium">
+        <div class="index-portfolio-image-wrapper">
+          <span class="index-portfolio-tag">שיפוע ניקוז</span>
+          <img data-placeholder="index-portfolio-image-2" data-context="Concrete walkway with consistent drainage slope and crisp edging, showing professional finishing work, Israeli residential project, clean lines" width="600" height="450" src="/assets/site-index-portfolio-image-2.webp" alt="שביל עם שיפוע אחיד וקצוות חדים">
+        </div>
+        <p class="index-portfolio-caption">שביל עם שיפוע אחיד וקצוות חדים.</p>
+      </div>
+
+      <div class="index-portfolio-item index-portfolio-item-medium">
+        <div class="index-portfolio-image-wrapper">
+          <span class="index-portfolio-tag">רשת ברזל</span>
+          <img data-placeholder="index-portfolio-image-3" data-context="Concrete parking pad engineered for heavy repeated loads, showing reinforcement grid and professional formwork, Israeli commercial site" width="600" height="450" src="/assets/site-index-portfolio-image-3.webp" alt="משטח חניה מהונדס לעומסים חוזרים">
+        </div>
+        <p class="index-portfolio-caption">משטח חניה מהונדס לעומסים חוזרים.</p>
+      </div>
+
+      <div class="index-portfolio-item index-portfolio-item-small">
+        <div class="index-portfolio-image-wrapper">
+          <span class="index-portfolio-tag">יציקת קיר</span>
+          <img data-placeholder="index-portfolio-image-4" data-context="Concrete retaining wall pour with aligned formwork, showing precision construction and proper reinforcement, Israeli construction project" width="400" height="350" src="/assets/site-index-portfolio-image-4.webp" alt="יציקת קיר תומך עם תבניות מיושרות">
+        </div>
+        <p class="index-portfolio-caption">יציקת קיר תומך עם תבניות מיושרות.</p>
+      </div>
+
+      <div class="index-portfolio-item index-portfolio-item-small">
+        <div class="index-portfolio-image-wrapper">
+          <span class="index-portfolio-tag">תיקון</span>
+          <img data-placeholder="index-portfolio-image-5" data-context="Concrete repair patch seamlessly blended with existing surface texture, showing skilled matching work, Israeli renovation project" width="400" height="350" src="/assets/site-index-portfolio-image-5.webp" alt="טלאי תיקון משולב למרקם קיים">
+        </div>
+        <p class="index-portfolio-caption">טלאי תיקון משולב למרקם קיים.</p>
+      </div>
+
+      <div class="index-portfolio-item index-portfolio-item-small">
+        <div class="index-portfolio-image-wrapper">
+          <span class="index-portfolio-tag">אגרגט חשוף</span>
+          <img data-placeholder="index-portfolio-image-6" data-context="Stamped and textured concrete finish for exterior use, exposed aggregate pattern, Israeli residential outdoor space, decorative concrete work" width="400" height="350" src="/assets/site-index-portfolio-image-6.webp" alt="גימור מוטבע או מרקם לשימוש חוץ">
+        </div>
+        <p class="index-portfolio-caption">גימור מוטבע או מרקם לשימוש חוץ.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="index-portfolio-divider-wrapper">
+    <svg data-no-icon-edit="true" aria-hidden="true" viewbox="0 0 1200 80" preserveaspectratio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,80 L0,42 Q15,38 30,44 T60,40 Q75,42 90,38 T120,43 Q135,39 150,42 T180,38 Q195,43 210,39 T240,42 Q255,38 270,43 T300,39 Q315,42 330,38 T360,43 Q375,39 390,42 T420,38 Q435,43 450,39 T480,42 Q495,38 510,43 T540,39 Q555,42 570,38 T600,43 Q615,39 630,42 T660,38 Q675,43 690,39 T720,42 Q735,38 750,43 T780,39 Q795,42 810,38 T840,43 Q855,39 870,42 T900,38 Q915,43 930,39 T960,42 Q975,38 990,43 T1020,39 Q1035,42 1050,38 T1080,43 Q1095,39 1110,42 T1140,38 Q1155,43 1170,39 T1200,42 L1200,80 Z" fill="#2F5D8C"></path>
+    </svg>
+  </div>
+</section>
+
+<section class="index-cta-section" data-layout-spec="בית-cta">
+  <div class="index-cta-container">
+    <div class="index-cta-content">
+      <div class="index-cta-text">
+        <h2 class="index-cta-title">מוכנים לבנות על בסיס איתן?</h2>
+        <p class="index-cta-description">ספרו לנו מה אתם מתכננים וקבלו היקף עבודה ברור, לוח זמנים מדויק והמלצה לגימור מושלם.</p>
+      </div>
+      <div class="index-cta-buttons">
+        <a href="/contact" class="index-cta-btn index-cta-btn-primary">צרו קשר</a>
+        <a href="/projects" class="index-cta-btn index-cta-btn-secondary">צפו בפרויקטים נוספים</a>
+      </div>
+    </div>
+    <div class="index-cta-reassurance">
+      <div class="index-cta-reassurance-item">
+        <p>תכנון מוכן לאתר וביצוע נקי.</p>
+      </div>
+      <div class="index-cta-reassurance-divider"></div>
+      <div class="index-cta-reassurance-item">
+        <p>היקף שקוף והנחיית חומרים.</p>
+      </div>
+      <div class="index-cta-reassurance-divider"></div>
+      <div class="index-cta-reassurance-item">
+        <p>בנוי לעמידות וניקוז.</p>
+      </div>
+    </div>
+  </div>
+</section>
+  </main>
+  
+  <footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-top">
+      <div class="footer-column company-info">
+        <img class="logo" data-placeholder="logo" data-context="business logo" width="150" height="40" src="/assets/business-logo.webp" alt="עבודות בטון ועוד">
+        <p class="company-description">מומחים בעבודות בטון, שיפוצים ובנייה. איכות ומקצועיות ללא פשרות.</p>
+      </div>
+      
+      <div class="footer-column quick-links">
+        <h3 class="footer-heading">קישורים מהירים</h3>
+        <ul class="footer-links">
+          <li><a href="/services">שירותים</a></li>
+          <li><a href="/projects">פרויקטים</a></li>
+          <li><a href="/contact">צור קשר</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column contact-info">
+        <h3 class="footer-heading">צור קשר</h3>
+        <ul class="contact-list">
+          <li>
+            <i class="fas fa-envelope"></i>
+            <a href="mailto:[business_email]">[business_email]</a>
+          </li>
+          <li>
+            <i class="fas fa-phone"></i>
+            <a href="tel:[business_phone]">[business_phone]</a>
+          </li>
+          <li><a href="/"><i class="fas fa-map-marker-alt"></i>
+            <span>[business_address]</span></a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column social-media">
+        <h3 class="footer-heading">עקבו אחרינו</h3>
+        <div class="social-links">
+          <a href="[facebook_handle]" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="[instagram_handle]" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="[whatsapp_handle]" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <div class="copyright">
+        <p>© 2026 עבודות בטון ועוד. כל הזכויות שמורות.</p>
+      </div>
+      <div class="footer-legal">
+        <a href="/privacy">מדיניות פרטיות</a>
+        <span class="separator">|</span>
+        <a href="/terms">תנאי שימוש</a>
+        <span class="separator">|</span>
+        <a href="/accessibility">נגישות</a>
+        <span class="separator">|</span>
+        <a href="https://zappy5.com" target="_blank" class="zappy-attribution">נוצר באמצעות Zappy</a>
+      </div>
+    </div>
+  </div>
+</footer>
+  
+  <a href="https://wa.me/[whatsapp_handle]" class="whatsapp-float" aria-label="WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  
+  <div data-integration="accessibility:toolbar"></div>
+
+    <script src="/script.js"></script>
+
+    <script id="zappy-mobile-submenu-script">
+    (function() {
+      function initMobileSubmenuToggles() {
+        if (window.innerWidth > 768) {
+          document.querySelectorAll('.mobile-submenu-toggle').forEach(function(btn) { btn.remove(); });
+          document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) { menu.classList.remove('mobile-expanded'); });
+          return;
+        }
+        var items = document.querySelectorAll('.nav-menu li:has(.sub-menu), nav li:has(.sub-menu), .navbar li:has(.sub-menu), #navMenu li:has(.sub-menu)');
+        items.forEach(function(li) {
+          if (li.querySelector('.mobile-submenu-toggle')) return;
+          var submenu = li.querySelector('.sub-menu');
+          var parentLink = li.querySelector(':scope > a');
+          if (!submenu || !parentLink) return;
+          var toggleBtn = document.createElement('button');
+          toggleBtn.className = 'mobile-submenu-toggle';
+          toggleBtn.setAttribute('aria-label', 'Toggle submenu');
+          toggleBtn.setAttribute('type', 'button');
+          parentLink.insertAdjacentElement('afterend', toggleBtn);
+          toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            document.querySelectorAll('.sub-menu.mobile-expanded').forEach(function(menu) {
+              if (menu !== submenu) { menu.classList.remove('mobile-expanded'); var t = menu.parentElement.querySelector('.mobile-submenu-toggle'); if(t) t.classList.remove('expanded'); }
+            });
+            submenu.classList.toggle('mobile-expanded');
+            toggleBtn.classList.toggle('expanded');
+          });
+        });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMobileSubmenuToggles); }
+      else { initMobileSubmenuToggles(); }
+      var resizeTimer; window.addEventListener('resize', function() { clearTimeout(resizeTimer); resizeTimer = setTimeout(initMobileSubmenuToggles, 250); });
+      // Re-initialize when mobile menu becomes visible (MutationObserver)
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes') {
+            var target = mutation.target;
+            if (target.classList && (target.classList.contains('active') || target.classList.contains('open'))) {
+              setTimeout(initMobileSubmenuToggles, 100);
+            }
+          }
+        });
+      });
+      setTimeout(function() {
+        document.querySelectorAll('.mobile-menu, .nav-menu, #navMenu, nav').forEach(function(menu) {
+          observer.observe(menu, { attributes: true, attributeFilter: ['class', 'style'] });
+        });
+      }, 500);
+    })();
+    </script>
+
+    <script id="zappy-navbar-scroll-effect">
+    (function(){var nb=document.querySelector('nav.navbar,.navbar:not(.zappy-catalog-menu)');var cm=document.querySelector('.zappy-catalog-menu');if(!nb)return;var fb='rgba(11,18,32,0.85)';var th=60;nb.style.transition='background 0.3s ease,backdrop-filter 0.3s ease,-webkit-backdrop-filter 0.3s ease,box-shadow 0.3s ease';if(cm)cm.style.transition='background 0.3s ease,backdrop-filter 0.3s ease,-webkit-backdrop-filter 0.3s ease';function onS(){var y=window.scrollY||window.pageYOffset;if(y>th){nb.style.background=fb;nb.style.backdropFilter='blur(12px)';nb.style.webkitBackdropFilter='blur(12px)';nb.style.boxShadow='0 2px 16px rgba(0,0,0,0.12)';if(cm){cm.style.background=fb;cm.style.backdropFilter='blur(12px)';cm.style.webkitBackdropFilter='blur(12px)';}}else{nb.style.background='transparent';nb.style.backdropFilter='none';nb.style.webkitBackdropFilter='none';nb.style.boxShadow='none';if(cm){cm.style.background='transparent';cm.style.backdropFilter='none';cm.style.webkitBackdropFilter='none';}}}window.addEventListener('scroll',onS,{passive:true});onS();})();
+    </script>
+</body>
+</html>
